@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Counter</title>
+<style>
+body{font-family:Arial,sans-serif;background:#ece9df;display:flex;justify-content:center;padding:20px}
+.box{max-width:420px;width:100%;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+#disp{background:#d9dfc8;border:3px solid #333;border-radius:10px;
+font:700 56px monospace;text-align:center;padding:18px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font-size:22px;padding:18px;border-radius:10px;border:none;background:#2d6cdf;color:#fff}
+.reset{grid-column:1/3;background:#d93025}
+</style>
+</head>
+<body>
+<div class="box">
+<div id="disp">F00000</div>
+<div class="grid">
+<button onclick="add(1000)">+1000</button>
+<button onclick="add(5000)">+5000</button>
+<button onclick="add(10000)">+10000</button>
+<button onclick="toggleMode()">F/-</button>
+<button class="reset" onclick="resetAll()">RESET</button>
+</div>
+</div>
+<script>
+let value=0,mode="F";
+const key="digital-counter";
+try{
+ const s=JSON.parse(localStorage.getItem(key));
+ if(s){value=s.value||0;mode=s.mode||"F";}
+}catch(e){}
+function draw(){
+ document.getElementById("disp").textContent=mode+String(value).padStart(5,"0");
+ localStorage.setItem(key,JSON.stringify({value,mode}));
+}
+function add(n){value=Math.min(99999,value+n);draw();}
+function toggleMode(){mode=mode==="F"?"-":"F";draw();}
+function resetAll(){value=0;mode="F";draw();}
+draw();
+</script>
+</body>
+</html>
