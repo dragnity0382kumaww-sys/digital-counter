@@ -73,7 +73,8 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .pbuttons{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:4px;min-height:0}
 .pbtn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);
  box-shadow:0 2px 1px #0003;background:linear-gradient(#1b72dc,#00388e);border:1px solid #00347f}
-.pbtn.mid{background:linear-gradient(#2a2a2a,#050505);border-color:#000}
+.pbtn.mid{background:linear-gradient(#2a2a2a,#050505);border-color:#000;color:#fff}
+.rainbow{background:linear-gradient(90deg,#ff2d2d,#ff9800,#ffe600,#37d837,#27b7ff,#4b4bff,#b32dff)!important;color:#fff!important;border:1px solid #555}
 .reset-btn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);box-shadow:0 2px 1px #0003;background:linear-gradient(#ff2933,#bd0008);border:1px solid #920005}
 
 .front{padding:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
@@ -169,7 +170,7 @@ button:active{transform:translateY(2px);filter:brightness(.92)}
 <button class="pbtn" data-delta="5000">+5000</button>
 <button class="pbtn mid" data-delta="10000">+10000</button>
 <button class="pbtn mid" data-delta="20000">+20000</button>
-<button class="pbtn" data-delta="1000000">+1億</button>
+<button class="pbtn rainbow" data-delta="1000000">+1億</button>
 <button class="reset-btn">RESET</button>
 </div>
 </article>
