@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ミレイカウンター">
-<title>御薬袋ミレイのパワーカウンター Ver.1.6 Cinematic</title>
+<title>御薬袋ミレイのパワーカウンター Ver.1.6 Cinematic Switch</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -277,6 +277,46 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
  #personaCinematicFx *,body.pcf-running .app,body.pcf-running .display{animation-duration:.01ms!important}
 }
 
+
+/* ===== 演出スイッチ & カウンター「+」 ===== */
+.fx-switch{
+ position:absolute;right:8px;top:6px;z-index:3;
+ display:flex;align-items:center;gap:4px;
+ min-width:78px;height:24px;padding:2px 6px;
+ border:1px solid #b87089;border-radius:999px;
+ background:rgba(255,255,255,.88);color:#a91d50;
+ font-size:clamp(8px,.82vw,11px);font-weight:900;
+ box-shadow:0 1px 4px #0002;
+}
+.fx-switch:active{transform:none}
+.fx-track{
+ position:relative;width:27px;height:14px;border-radius:999px;
+ background:#aaa;box-shadow:inset 0 1px 3px #0005;
+ transition:.2s;
+}
+.fx-knob{
+ position:absolute;left:2px;top:2px;width:10px;height:10px;border-radius:50%;
+ background:#fff;box-shadow:0 1px 3px #0006;transition:.2s;
+}
+.fx-switch.on .fx-track{
+ background:linear-gradient(90deg,#00a9ff,#075bff);
+ box-shadow:0 0 8px #22bfff,inset 0 1px 3px #0003;
+}
+.fx-switch.on .fx-knob{left:15px}
+.fx-switch.on .fx-state{color:#0766db}
+.fx-switch.off{filter:grayscale(.5);opacity:.78}
+.fx-switch.off .fx-state{color:#777}
+
+.power-plus{
+ margin-right:.06em;color:var(--green);
+ font-size:.72em;line-height:1;letter-spacing:0;
+ text-shadow:0 0 7px #55ff00;
+}
+.power.nonzero .power-plus{color:var(--green)}
+@media(max-height:400px){
+ .fx-switch{top:3px;height:21px;min-width:70px;padding:1px 5px}
+}
+
 </style>
 </head>
 <body>
@@ -291,7 +331,7 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
   <div class="pcf-chant">
     <div class="pcf-line pcf-line1">不滅の焔</div>
     <div class="pcf-line pcf-line2">神具を纏いて</div>
-    <div class="pcf-line pcf-line3">夜明けとなれ...</div>
+    <div class="pcf-line pcf-line3">夜明けとなれー</div>
   </div>
 
   <div class="pcf-flash"></div>
@@ -306,7 +346,14 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 </div>
 
 <main class="app">
-<header class="title">御薬袋ミレイのパワーカウンター</header>
+<header class="title">
+  御薬袋ミレイのパワーカウンター
+  <button id="fxSwitch" class="fx-switch on" type="button" aria-label="演出のオンオフ">
+    <span class="fx-label">演出</span>
+    <span class="fx-track"><span class="fx-knob"></span></span>
+    <span class="fx-state">ON</span>
+  </button>
+</header>
 <section class="main">
 <aside class="left panel">
 <button class="e-btn pos" data-e="3">+3</button>
@@ -347,7 +394,7 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 
 <template id="counterTemplate">
 <article class="counter panel">
-<div class="power"><span class="first">0</span><span class="rest">000000</span></div>
+<div class="power"><span class="power-plus">+</span><span class="first">0</span><span class="rest">000000</span></div>
 <div class="minirow">
 <div class="mini star">★1</div><button class="mini-btn star-plus">★+1</button><button class="mini-btn star-minus">★−1</button>
 </div>
@@ -369,13 +416,13 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 (()=>{
 "use strict";
 const KEY="mirei-counter-v1-final",MAX=9999999,FACES=["⚀","⚁","⚂","⚃","⚄","⚅"];
-const fresh=()=>({e:0,persona:false,bow:true,dice:null,characterAlt:false,counters:Array.from({length:3},()=>({power:0,star:1,drive:0}))});
+const fresh=()=>({e:0,persona:false,bow:true,fxEnabled:true,dice:null,characterAlt:false,counters:Array.from({length:3},()=>({power:0,star:1,drive:0}))});
 let state=load();
 
 const countersEl=document.getElementById("counters"),tpl=document.getElementById("counterTemplate"),cards=[];
 for(let i=0;i<3;i++){const card=tpl.content.firstElementChild.cloneNode(true);card.dataset.i=i;countersEl.appendChild(card);cards.push(card);wireCard(card,i)}
 
-const eDisplay=document.getElementById("eDisplay"),persona=document.getElementById("persona"),bow=document.getElementById("bow");
+const eDisplay=document.getElementById("eDisplay"),persona=document.getElementById("persona"),bow=document.getElementById("bow"),fxSwitch=document.getElementById("fxSwitch");
 const dice=document.getElementById("dice"),dieFace=document.getElementById("dieFace"),dieResult=document.getElementById("dieResult");
 const allReset=document.getElementById("allReset"),progress=document.getElementById("progress"),character=document.getElementById("characterStage");
 
@@ -388,9 +435,13 @@ persona.onclick=()=>{
  state.persona=!state.persona;
  state.counters.forEach(c=>c.power=clamp(c.power+d,0,MAX));
  commit();
- if(turningOn)playPersonaCinematic();
+ if(turningOn&&state.fxEnabled)playPersonaCinematic();
 };
 bow.onclick=()=>{state.bow=!state.bow;commit()};
+fxSwitch.onclick=()=>{
+ state.fxEnabled=!state.fxEnabled;
+ commit();
+};
 dice.onclick=rollDice;
 wireAllReset();
 render();
@@ -443,6 +494,10 @@ function repeat(el,fn){
  el.addEventListener("pointerup",stop);el.addEventListener("pointercancel",stop);el.addEventListener("lostpointercapture",()=>stop());el.oncontextmenu=e=>e.preventDefault()
 }
 function render(){
+ fxSwitch.classList.toggle("on",state.fxEnabled);
+ fxSwitch.classList.toggle("off",!state.fxEnabled);
+ fxSwitch.querySelector(".fx-state").textContent=state.fxEnabled?"ON":"OFF";
+
  character.classList.toggle("is-held",!!state.characterAlt);
  eDisplay.textContent="E"+state.e;persona.classList.toggle("off",!state.persona);bow.classList.toggle("off",!state.bow);
  dieResult.textContent=state.dice??"−";dieFace.textContent=state.dice?FACES[state.dice-1]:"⚄";
