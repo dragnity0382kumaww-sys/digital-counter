@@ -51,6 +51,7 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
  color:var(--green);font:bold clamp(20px,2.4vw,34px) ui-monospace,Consolas,monospace}
 .toggle{color:#fff;font-size:clamp(10px,1.25vw,18px);padding:3px;line-height:1.05}
 .persona{background:linear-gradient(#f32c58,#cb0035)}
+.diava{background:linear-gradient(#e72a38,#a90016)}
 .bow{background:linear-gradient(#1973db,#00449d)}
 .toggle.off{filter:grayscale(1);opacity:.55}
 
@@ -82,7 +83,7 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .front button{border-radius:8px;border:1px solid #35105b;background:linear-gradient(#7d28a8,#4a077a);
  color:#fff;font-weight:900;font-size:clamp(12px,1.75vw,24px);box-shadow:0 3px 1px #0003}
 
-.right{padding:4px;display:grid;grid-template-rows:22% 39% 1fr;gap:4px;min-width:0}
+.right{padding:4px;display:grid;grid-template-rows:22% 18% 18% 1fr;gap:4px;min-width:0}
 .dice{border:2px solid #ef5b8c;border-radius:11px;background:linear-gradient(145deg,#ff9fc0,#f04c82);
  color:#fff;display:flex;align-items:center;justify-content:center;gap:8%;box-shadow:inset 0 0 0 3px #ffcadd}
 .die-face{font-size:clamp(34px,4.8vw,68px)}.die-result{font:900 clamp(22px,3.8vw,50px) ui-monospace,monospace}
@@ -321,6 +322,22 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
  .fx-switch{top:3px;height:21px;min-width:70px;padding:1px 5px}
 }
 
+
+.right-persona{
+ border:2px solid #df356c;
+ border-radius:11px;
+ box-shadow:inset 0 0 0 3px #ffb7ce,0 0 8px #f32c5866;
+ font-size:clamp(11px,1.4vw,19px);
+}
+.allreset .all-title{
+ font-size:clamp(15px,2.2vw,30px);
+ line-height:.95;
+}
+.allreset .all-note{
+ font-size:clamp(6px,.75vw,10px);
+ margin-top:2px;
+}
+
 </style>
 </head>
 <body>
@@ -335,7 +352,7 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
   <div class="pcf-chant">
     <div class="pcf-line pcf-line1">不滅の焔</div>
     <div class="pcf-line pcf-line2">神具を纏いて</div>
-    <div class="pcf-line pcf-line3">夜明けとなれー</div>
+    <div class="pcf-line pcf-line3">夜明けとなれ―</div>
   </div>
 
   <div class="pcf-flash"></div>
@@ -365,7 +382,7 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 <div id="eDisplay" class="e-display">E0</div>
 <button class="e-btn neg" data-e="-1">−1</button>
 <button class="e-btn neg" data-e="-3">−3</button>
-<button id="persona" class="toggle persona">ペルソナライド</button>
+<button id="diava" class="toggle diava off">ディヤーヴァ</button>
 <button id="bow" class="toggle bow">ボウダナート</button>
 </aside>
 
@@ -382,6 +399,7 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 <button id="dice" class="dice" aria-label="サイコロを振る">
 <span id="dieFace" class="die-face">⚄</span><span id="dieResult" class="die-result">−</span>
 </button>
+<button id="persona" class="toggle persona right-persona">ペルソナライド</button>
 <button id="allReset" class="allreset">
 <span class="all-title">ALL<br>RESET</span>
 <span class="all-note">長押し1秒で<br>Eカウンターもリセット</span>
@@ -420,13 +438,13 @@ body.pcf-running .display{animation:pcfDigits 7s ease-in-out forwards}
 (()=>{
 "use strict";
 const KEY="mirei-counter-v1-final",MAX=9999999,FACES=["⚀","⚁","⚂","⚃","⚄","⚅"];
-const fresh=()=>({e:0,persona:false,bow:true,fxEnabled:true,dice:null,characterAlt:false,counters:Array.from({length:3},()=>({power:0,star:1,drive:0}))});
+const fresh=()=>({e:0,persona:false,bow:true,diava:false,fxEnabled:true,dice:null,characterAlt:false,counters:Array.from({length:3},()=>({power:0,star:1,drive:0}))});
 let state=load();
 
 const countersEl=document.getElementById("counters"),tpl=document.getElementById("counterTemplate"),cards=[];
 for(let i=0;i<3;i++){const card=tpl.content.firstElementChild.cloneNode(true);card.dataset.i=i;countersEl.appendChild(card);cards.push(card);wireCard(card,i)}
 
-const eDisplay=document.getElementById("eDisplay"),persona=document.getElementById("persona"),bow=document.getElementById("bow"),fxSwitch=document.getElementById("fxSwitch");
+const eDisplay=document.getElementById("eDisplay"),persona=document.getElementById("persona"),diava=document.getElementById("diava"),bow=document.getElementById("bow"),fxSwitch=document.getElementById("fxSwitch");
 const dice=document.getElementById("dice"),dieFace=document.getElementById("dieFace"),dieResult=document.getElementById("dieResult");
 const allReset=document.getElementById("allReset"),progress=document.getElementById("progress"),character=document.getElementById("characterStage");
 
@@ -440,6 +458,15 @@ persona.onclick=()=>{
  state.counters.forEach(c=>c.power=clamp(c.power+d,0,MAX));
  commit();
  if(turningOn&&state.fxEnabled)playPersonaCinematic();
+};
+diava.onclick=()=>{
+ const turningOn=!state.diava;
+ state.diava=!state.diava;
+ if(turningOn){
+  state.counters.forEach(c=>c.power=clamp(c.power+5000,0,MAX));
+  state.counters[1].drive=clamp(state.counters[1].drive+1,-9,9);
+ }
+ commit();
 };
 bow.onclick=()=>{state.bow=!state.bow;commit()};
 fxSwitch.onclick=()=>{
@@ -484,6 +511,7 @@ function wireAllReset(){
 function resetAll(withE){
   state.counters=Array.from({length:3},()=>({power:0,star:1,drive:0}));
   state.persona=false;
+  state.diava=false;
   state.bow=true;
   state.dice=null;
   state.characterAlt=false;
@@ -503,7 +531,7 @@ function render(){
  fxSwitch.querySelector(".fx-state").textContent=state.fxEnabled?"ON":"OFF";
 
  character.classList.toggle("is-held",!!state.characterAlt);
- eDisplay.textContent="E"+state.e;persona.classList.toggle("off",!state.persona);bow.classList.toggle("off",!state.bow);
+ eDisplay.textContent="E"+state.e;persona.classList.toggle("off",!state.persona);diava.classList.toggle("off",!state.diava);bow.classList.toggle("off",!state.bow);
  dieResult.textContent=state.dice??"−";dieFace.textContent=state.dice?FACES[state.dice-1]:"⚄";
  cards.forEach((card,i)=>{const c=state.counters[i],shown=c.power<=99999?String(c.power):String(c.power).padStart(7,"0"),p=card.querySelector(".power");
  p.querySelector(".first").textContent=shown.length===7?shown[0]:"";
