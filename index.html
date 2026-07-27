@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6d3be">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="パワーカウンター">
@@ -53,10 +53,11 @@ button {
   user-select:none;
 }
 .app {
-  width:100%;
-  min-width:900px;
-  max-width:1550px;
-  margin:0 auto;
+  width:1536px;
+  min-width:0;
+  max-width:none;
+  margin:0;
+  transform-origin:top left;
 }
 .header-row {
   display:grid;
@@ -235,7 +236,6 @@ button:active {
   filter:brightness(.92);
 }
 @media (max-width:1000px) {
-  .app { min-width:860px; }
   .header-row { gap:8px; }
   .counter-card { padding:9px; }
   .cards { gap:7px; }
@@ -512,8 +512,22 @@ button:active {
     showMessage("すべて初期状態に戻しました");
   });
 
+
+  function fitToScreen() {
+    const app = document.querySelector(".app");
+    const designWidth = 1536;
+    const scale = Math.min(1, window.innerWidth / designWidth);
+    app.style.transform = `scale(${scale})`;
+    app.style.marginLeft = `${Math.max(0, (window.innerWidth - designWidth * scale) / 2)}px`;
+    document.body.style.height = `${app.scrollHeight * scale + 12}px`;
+  }
+
+  window.addEventListener("resize", fitToScreen);
+  window.addEventListener("orientationchange", () => setTimeout(fitToScreen, 150));
+
   load();
   render();
+  setTimeout(fitToScreen, 50);
 })();
 </script>
 </body>
