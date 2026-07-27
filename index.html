@@ -71,9 +71,9 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .mini{background:#111;color:#fff}.star{color:#ffd500}.drive{color:#f32626}
 .mini-btn{background:linear-gradient(#fff,#eee);color:#111;box-shadow:0 2px 1px #0002}
 .pbuttons{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:4px;min-height:0}
-.pbtn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);
- box-shadow:0 2px 1px #0003;background:linear-gradient(#1b72dc,#00388e);border:1px solid #00347f}
-.pbtn.mid{background:linear-gradient(#2a2a2a,#050505);border-color:#000;color:#fff}
+.pbtn{border-radius:8px;color:#111!important;font-weight:900;font-size:clamp(11px,1.42vw,20px);
+ box-shadow:0 2px 1px #0003;background:linear-gradient(#fff,#ececec)!important;border:1px solid #777!important}
+.pbtn.mid{background:linear-gradient(#2a2a2a,#050505)!important;border-color:#000!important;color:#fff!important}
 .rainbow{background:linear-gradient(90deg,#ff2d2d,#ff9800,#ffe600,#37d837,#27b7ff,#4b4bff,#b32dff)!important;color:#fff!important;border:1px solid #555}
 .reset-btn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);box-shadow:0 2px 1px #0003;background:linear-gradient(#ff2933,#bd0008);border:1px solid #920005}
 
@@ -250,8 +250,10 @@ function render(){
  character.classList.toggle("is-held",!!state.characterAlt);
  eDisplay.textContent="E"+state.e;persona.classList.toggle("off",!state.persona);bow.classList.toggle("off",!state.bow);
  dieResult.textContent=state.dice??"−";dieFace.textContent=state.dice?FACES[state.dice-1]:"⚄";
- cards.forEach((card,i)=>{const c=state.counters[i],s=String(c.power).padStart(7,"0"),p=card.querySelector(".power");
- p.querySelector(".first").textContent=s[0];p.querySelector(".rest").textContent=s.slice(1);p.classList.toggle("nonzero",c.power>0);
+ cards.forEach((card,i)=>{const c=state.counters[i],shown=c.power<=99999?String(c.power):String(c.power).padStart(7,"0"),p=card.querySelector(".power");
+ p.querySelector(".first").textContent=shown.length===7?shown[0]:"";
+ p.querySelector(".rest").textContent=shown.length===7?shown.slice(1):shown;
+ p.classList.toggle("nonzero",c.power>0);
  card.querySelector(".star").textContent="★"+c.star;card.querySelector(".drive").textContent=c.drive===0?"D±0":"D"+(c.drive>0?"+":"")+c.drive})
 }
 function commit(){render();localStorage.setItem(KEY,JSON.stringify(state))}
