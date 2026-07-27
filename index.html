@@ -66,7 +66,7 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .pbtn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);
  box-shadow:0 2px 1px #0003;background:linear-gradient(#1b72dc,#00388e);border:1px solid #00347f}
 .pbtn.mid{background:linear-gradient(#8037b0,#4f0c80);border-color:#3d075f}
-.pbtn.wide{grid-column:1 / 3;width:52%;justify-self:center}
+.reset-btn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);box-shadow:0 2px 1px #0003;background:linear-gradient(#ff2933,#bd0008);border:1px solid #920005}
 
 .front{padding:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
  background:linear-gradient(90deg,#e462c3,#f5a8df,#d94fc0)}
@@ -161,7 +161,8 @@ button:active{transform:translateY(2px);filter:brightness(.92)}
 <button class="pbtn" data-delta="5000">+5000</button>
 <button class="pbtn mid" data-delta="10000">+10000</button>
 <button class="pbtn mid" data-delta="20000">+20000</button>
-<button class="pbtn wide" data-delta="1000000">+1億</button>
+<button class="pbtn" data-delta="1000000">+1億</button>
+<button class="reset-btn">RESET</button>
 </div>
 </article>
 </template>
@@ -200,6 +201,10 @@ function wireCard(card,i){
  card.querySelector(".star-minus").onclick=()=>{state.counters[i].star=clamp(state.counters[i].star-1,0,99);commit()};
  card.querySelector(".drive-plus").onclick=()=>{state.counters[i].drive=clamp(state.counters[i].drive+1,-9,9);commit()};
  card.querySelector(".drive-minus").onclick=()=>{state.counters[i].drive=clamp(state.counters[i].drive-1,-9,9);commit()};
+ card.querySelector(".reset-btn").onclick=()=>{
+   state.counters[i]={power:0,star:1,drive:0};
+   commit();
+ };
 }
 function rollDice(){
  if(dice.classList.contains("rolling"))return;
