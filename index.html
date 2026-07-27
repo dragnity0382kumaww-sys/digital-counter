@@ -24,11 +24,19 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 }
 .title{
  height:9%;min-height:34px;display:flex;align-items:center;justify-content:center;
- border:2px solid #ef719a;border-radius:12px;
- background:linear-gradient(90deg,#ffb7cf,#fff8fa 50%,#ffb7cf);
+ position:relative;overflow:hidden;border:2px solid #ef719a;border-radius:12px;
+ background:
+  radial-gradient(circle at 5% 25%,#ffffffdd 0 2px,transparent 3px),
+  radial-gradient(circle at 9% 65%,#f68db0 0 3px,transparent 4px),
+  radial-gradient(circle at 91% 35%,#ffffffdd 0 2px,transparent 3px),
+  radial-gradient(circle at 96% 70%,#f68db0 0 3px,transparent 4px),
+  linear-gradient(90deg,#ffb7cf,#fff8fa 50%,#ffb7cf);
  color:#e52d66;font-weight:1000;font-size:clamp(17px,3.25vw,38px);
  letter-spacing:.02em;text-shadow:0 2px #fff
 }
+.title::before,.title::after{position:absolute;color:#ef6f9b;opacity:.85;font-size:clamp(16px,2.4vw,30px);line-height:1}
+.title::before{content:"✿  ❀";left:3%}
+.title::after{content:"❀  ✿";right:3%}
 .main{
  height:91%;display:grid;grid-template-columns:minmax(88px,13%) 1fr minmax(150px,19%);
  gap:4px;padding-top:4px
@@ -65,7 +73,7 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .pbuttons{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:4px;min-height:0}
 .pbtn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);
  box-shadow:0 2px 1px #0003;background:linear-gradient(#1b72dc,#00388e);border:1px solid #00347f}
-.pbtn.mid{background:linear-gradient(#8037b0,#4f0c80);border-color:#3d075f}
+.pbtn.mid{background:linear-gradient(#2a2a2a,#050505);border-color:#000}
 .reset-btn{border-radius:8px;color:#fff;font-weight:900;font-size:clamp(11px,1.42vw,20px);box-shadow:0 2px 1px #0003;background:linear-gradient(#ff2933,#bd0008);border:1px solid #920005}
 
 .front{padding:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
