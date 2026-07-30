@@ -1,8 +1,8 @@
-
 (()=>{
 "use strict";
 const KEY="mirei-counter-v1-final",MAX=9999999,FACES=["⚀","⚁","⚂","⚃","⚄","⚅"];
-const fresh=()=>({e:0,persona:false,bow:false,diava:false,diavaFirst:true,diavaDriveReady:true,bowFirst:true,bowUsed:false,bowPower:0,bowPending:false,bowPhase:"off",fxEnabled:true,dice:null,characterAlt:false,rideUnlocked:false,counters:Array.from({length:3},()=>({power:0,star:0,drive:0}))});
+const makeCounter=()=>({power:0,basePower:0,baseLocked:false,star:0,drive:0});
+const fresh=()=>({e:0,persona:false,bow:false,diava:false,diavaFirst:true,diavaDriveReady:true,bowFirst:true,bowUsed:false,bowPower:0,bowPending:false,bowPhase:"off",fxEnabled:true,dice:null,characterAlt:false,rideUnlocked:false,counters:Array.from({length:3},makeCounter)});
 let state=load();
 let cinematicBusy=false;
 let battleCycle=0;
@@ -148,10 +148,60 @@ function wireRideLongPress(){
  character.oncontextmenu=e=>e.preventDefault();
 }
 
+// PHASE4.3.8-②: base-power lock UI and interaction.
+// Power display tap locks the current value; tapping again unlocks and returns to +0.
+function addPower(i,delta){
+ const c=state.counters[i];
+ c.power=clamp(c.power+Number(delta||0),0,MAX);
+ return c.power;
+}
+function setPower(i,value){
+ const c=state.counters[i];
+ c.power=clamp(Number(value||0),0,MAX);
+ return c.power;
+}
+function lockCounter(i){
+ const c=state.counters[i];
+ c.basePower=clamp(c.power,0,MAX);
+ c.baseLocked=true;
+ return c.basePower;
+}
+function restoreBase(i){
+ const c=state.counters[i];
+ if(c.baseLocked)c.power=clamp(c.basePower,0,MAX);
+ return c.power;
+}
+function unlockCounter(i,{clearPower=false}={}){
+ const c=state.counters[i];
+ c.baseLocked=false;
+ c.basePower=0;
+ if(clearPower)c.power=0;
+}
+function resetCounter(i,{unlock=true}={}){
+ const c=state.counters[i];
+ c.power=unlock?0:(c.baseLocked?clamp(c.basePower,0,MAX):0);
+ c.star=0;
+ c.drive=0;
+ if(unlock){c.basePower=0;c.baseLocked=false;}
+}
+
 function wireCard(card,i){
+ const powerDisplay=card.querySelector(".power");
+ const toggleBaseLock=()=>{
+  if(state.counters[i].baseLocked)unlockCounter(i,{clearPower:true});
+  else lockCounter(i);
+  commit();
+ };
+ powerDisplay.onclick=toggleBaseLock;
+ powerDisplay.onkeydown=e=>{
+  if(e.key==="Enter"||e.key===" "){
+   e.preventDefault();
+   toggleBaseLock();
+  }
+ };
  card.querySelectorAll("[data-delta]").forEach(b=>repeat(b,()=>{
   const delta=Number(b.dataset.delta);
-  state.counters[i].power=clamp(state.counters[i].power+delta,0,MAX);
+  addPower(i,delta);
   if(delta===1000000){ state.characterAlt=true; if(state.fxEnabled)playOverTrigger(); }
   commit();
 }));
@@ -160,7 +210,7 @@ function wireCard(card,i){
  card.querySelector(".drive-plus").onclick=()=>{state.counters[i].drive=clamp(state.counters[i].drive+1,-9,9);commit()};
  card.querySelector(".drive-minus").onclick=()=>{state.counters[i].drive=clamp(state.counters[i].drive-1,-9,9);commit()};
  card.querySelector(".reset-btn").onclick=()=>{
-   state.counters[i]={power:0,star:0,drive:0};
+   resetCounter(i,{unlock:true});
    commit();
  };
 }
@@ -202,9 +252,16 @@ function resetAbilityCinematics(){
 }
 function resetAll(sealMode){
  if(!sealMode){
-  // Short press: reset battle state, keep E and the current unlock state.
+  // PHASE4.3.8-③ short press:
+  // locked counters return to their stored base power and stay locked;
+  // unlocked counters return to +0. Star/drive and battle effects are reset.
   resetAbilityCinematics();
-  state.counters=Array.from({length:3},()=>({power:0,star:0,drive:0}));
+  state.counters=state.counters.map(c=>({
+   ...makeCounter(),
+   power:c.baseLocked?clamp(c.basePower,0,MAX):0,
+   basePower:c.baseLocked?clamp(c.basePower,0,MAX):0,
+   baseLocked:c.baseLocked===true
+  }));
   state.persona=false;
   state.diava=false;
   state.diavaDriveReady=true;
@@ -221,7 +278,7 @@ function resetAll(sealMode){
  }
  const finish=()=>{
   resetAbilityCinematics();
-  state.counters=Array.from({length:3},()=>({power:0,star:0,drive:0}));
+  state.counters=Array.from({length:3},makeCounter);
   state.persona=false;
   state.diava=false;
   state.diavaFirst=true;
@@ -348,6 +405,9 @@ function render(){
  p.querySelector(".first").textContent=shown.length===7?shown[0]:"";
  p.querySelector(".rest").textContent=shown.length===7?shown.slice(1):shown;
  p.classList.toggle("nonzero",c.power>0);
+ p.classList.toggle("base-locked",c.baseLocked);
+ p.setAttribute("aria-pressed",String(c.baseLocked));
+ p.setAttribute("aria-label",c.baseLocked?"ベースパワーのロックを解除":"現在のパワーをベースとしてロック");
  const starEl=card.querySelector(".star"),driveEl=card.querySelector(".drive");starEl.textContent=c.star===0?"":(c.star>0?"☆+"+c.star:"☆"+c.star);driveEl.textContent=c.drive===0?"":(c.drive>0?"D+"+c.drive:"D"+c.drive);starEl.classList.toggle("value-zero",c.star===0);driveEl.classList.toggle("value-zero",c.drive===0)})
 }
 function commit(){render();localStorage.setItem(KEY,JSON.stringify(state))}
@@ -355,6 +415,18 @@ function load(){
  try{
   const x=JSON.parse(localStorage.getItem(KEY));
   const loaded=x&&x.counters?.length===3?{...fresh(),...x}:fresh();
+  loaded.counters=Array.from({length:3},(_,i)=>{
+   const saved=loaded.counters?.[i]||{};
+   return {
+    ...makeCounter(),
+    ...saved,
+    power:clamp(Number(saved.power||0),0,MAX),
+    basePower:clamp(Number(saved.basePower||0),0,MAX),
+    baseLocked:saved.baseLocked===true,
+    star:clamp(Number(saved.star||0),0,99),
+    drive:clamp(Number(saved.drive||0),-9,9)
+   };
+  });
   const migrationKey=KEY+"_phase431";
   if(!localStorage.getItem(migrationKey)){
    loaded.counters.forEach(c=>{if(c.star===1)c.star=0});
@@ -727,4 +799,3 @@ function playPersonaCinematic(){
   });
  }).observe(angry,{attributes:true,attributeFilter:["class"]});
 })();
-
