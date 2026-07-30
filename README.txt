@@ -1,5 +1,5 @@
 御薬袋ミレイのパワーカウンター
-Ver2.0 Ultimate PHASE4.3.8-②
+Ver2.0 Ultimate PHASE4.3.8 Final
 
 【追加内容】
 ・3つのパワー表示を個別にタップしてベースパワーをロック／解除
@@ -18,7 +18,7 @@ Ver2.0 Ultimate PHASE4.3.8-②
 ※ALL RESET短押しでベース値へ戻す動作、RESET／ALL RESET長押しとの最終連携は次段階で調整予定です。
 
 
-PHASE4.3.8-2 分割版: index.html / style.css / script.js
+PHASE4.3.8 Final 分割版: index.html / style.css / script.js
 
 
 PHASE4.3.8-③ 追加内容
@@ -27,3 +27,11 @@ PHASE4.3.8-③ 追加内容
 - 個別RESET：対象カウンターのロック解除、ベース値削除、+0へ復帰
 - ALL RESET長押し：3カウンターのロック解除、ベース値削除、+0へ復帰
 - ロック状態・ベース値・現在値の保存と復元を維持
+
+
+PHASE4.3.8-④ Final 追加内容
+・ベースパワーロック時の金色パルス演出
+・ロック解除時の緑色へ戻る短い演出
+・金色表示と発光枠の視認性調整
+・端末の「視差効果を減らす」設定に対応
+・バージョン表記をPHASE4.3.8 Finalへ更新

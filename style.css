@@ -57,11 +57,27 @@ button{font:inherit;touch-action:manipulation;user-select:none;-webkit-user-sele
 .power.nonzero .first{color:#ff2727}
 .power{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;border:2px solid transparent;transition:color .15s ease,border-color .15s ease,box-shadow .15s ease}
 .power:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.power-lock{position:absolute;left:5px;top:4px;font-size:clamp(10px,1.15vw,16px);line-height:1;opacity:0;transform:scale(.7);pointer-events:none;filter:drop-shadow(0 0 4px #ffd900);transition:opacity .15s ease,transform .15s ease}
-.power.base-locked{color:#ffe11a;border-color:#ffd900;box-shadow:inset 0 0 10px #000,0 0 8px #ffd900,0 0 16px #ffc40088}
-.power.base-locked .first,.power.base-locked.nonzero .first,.power.base-locked .rest{color:#ffe11a;text-shadow:0 0 8px #ffd900}
+.power-lock{position:absolute;left:5px;top:4px;font-size:clamp(10px,1.15vw,16px);line-height:1;opacity:0;transform:scale(.7);pointer-events:none;filter:drop-shadow(0 0 4px #ffd54a);transition:opacity .15s ease,transform .15s ease}
+.power{transition:color .15s ease,border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+.power.base-locked{color:#ffdf45;border-color:#ffd54a;box-shadow:inset 0 0 10px #000,0 0 7px #ffd54a,0 0 15px #ffbf3f80}
+.power.base-locked .first,.power.base-locked.nonzero .first,.power.base-locked .rest{color:#ffdf45;text-shadow:0 0 7px #ffd54a}
 .power.base-locked .power-lock{opacity:1;transform:scale(1)}
 .power.base-locked .power-plus{display:none}
+.power.base-lock-pulse{animation:baseLockPulse .34s cubic-bezier(.2,.8,.2,1)}
+.power.base-unlock-pulse{animation:baseUnlockPulse .30s ease-out}
+@keyframes baseLockPulse{
+ 0%{transform:scale(1);box-shadow:inset 0 0 10px #000,0 0 0 #ffd54a}
+ 45%{transform:scale(1.035);box-shadow:inset 0 0 10px #000,0 0 13px #ffe58a,0 0 25px #ffbf3fcc}
+ 100%{transform:scale(1);box-shadow:inset 0 0 10px #000,0 0 7px #ffd54a,0 0 15px #ffbf3f80}
+}
+@keyframes baseUnlockPulse{
+ 0%{transform:scale(1.025);filter:brightness(1.35)}
+ 100%{transform:scale(1);filter:brightness(1)}
+}
+@media (prefers-reduced-motion:reduce){
+ .power,.power-lock{transition:none}
+ .power.base-lock-pulse,.power.base-unlock-pulse{animation:none}
+}
 .minirow{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:3px}
 .mini,.mini-btn{display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid #555;
  font-weight:900;font-size:clamp(11px,1.48vw,20px)}

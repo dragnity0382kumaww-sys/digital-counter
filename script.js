@@ -148,7 +148,7 @@ function wireRideLongPress(){
  character.oncontextmenu=e=>e.preventDefault();
 }
 
-// PHASE4.3.8-②: base-power lock UI and interaction.
+// PHASE4.3.8: base-power lock state and interaction.
 // Power display tap locks the current value; tapping again unlocks and returns to +0.
 function addPower(i,delta){
  const c=state.counters[i];
@@ -185,12 +185,25 @@ function resetCounter(i,{unlock=true}={}){
  if(unlock){c.basePower=0;c.baseLocked=false;}
 }
 
+// PHASE4.3.8-④: short visual feedback for base-power lock/unlock.
+function playBaseLockAnimation(i,isLock){
+ const powerDisplay=cards[i]?.querySelector(".power");
+ if(!powerDisplay)return;
+ const animationClass=isLock?"base-lock-pulse":"base-unlock-pulse";
+ powerDisplay.classList.remove("base-lock-pulse","base-unlock-pulse");
+ void powerDisplay.offsetWidth;
+ powerDisplay.classList.add(animationClass);
+ setTimeout(()=>powerDisplay.classList.remove(animationClass),360);
+}
+
 function wireCard(card,i){
  const powerDisplay=card.querySelector(".power");
  const toggleBaseLock=()=>{
-  if(state.counters[i].baseLocked)unlockCounter(i,{clearPower:true});
-  else lockCounter(i);
+  const willLock=!state.counters[i].baseLocked;
+  if(willLock)lockCounter(i);
+  else unlockCounter(i,{clearPower:true});
   commit();
+  playBaseLockAnimation(i,willLock);
  };
  powerDisplay.onclick=toggleBaseLock;
  powerDisplay.onkeydown=e=>{
